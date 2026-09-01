@@ -1,0 +1,1 @@
+print ("Controle de gastos")
