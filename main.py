@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from database import (
     criar_tabela,
@@ -17,9 +17,9 @@ criar_tabela()
 
 
 class Despesa(BaseModel):
-    descricao: str
-    valor: float
-    categoria: str
+    descricao: str = Field(min_length=2)
+    valor: float = Field(gt=0)
+    categoria: str = Field(min_length=2)
 
 
 @app.get("/")
