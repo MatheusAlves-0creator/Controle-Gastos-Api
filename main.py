@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -11,7 +11,6 @@ class Despesa(BaseModel):
 
 
 despesas = []
-
 proximo_id = 1
 
 
@@ -22,7 +21,6 @@ def inicio():
 
 @app.post("/despesas")
 def cadastrar_despesa(despesa: Despesa):
-
     global proximo_id
 
     nova_despesa = {
@@ -33,7 +31,6 @@ def cadastrar_despesa(despesa: Despesa):
     }
 
     despesas.append(nova_despesa)
-
     proximo_id += 1
 
     return nova_despesa
@@ -42,3 +39,46 @@ def cadastrar_despesa(despesa: Despesa):
 @app.get("/despesas")
 def listar_despesas():
     return despesas
+
+
+@app.get("/despesas/{id}")
+def buscar_despesa(id: int):
+
+    for despesa in despesas:
+        if despesa["id"] == id:
+            return despesa
+
+    raise HTTPException(
+        status_code=404,
+        detail="Despesa não encontrada"
+    )
+@app.delete("/despesas/{id}")
+def deletar_despesa(id: int):
+
+    for despesa in despesas:
+        if despesa["id"] == id:
+            despesas.remove(despesa)
+
+            return {"mensagem": "Despesa excluída com sucesso"}
+
+    raise HTTPException(
+        status_code=404,
+        detail="Despesa não encontrada"
+    )
+@app.put("/despesas/{id}")
+def atualizar_despesa(id: int, despesa_atualizada: Despesa):
+
+    for despesa in despesas:
+
+        if despesa["id"] == id:
+
+            despesa["descricao"] = despesa_atualizada.descricao
+            despesa["valor"] = despesa_atualizada.valor
+            despesa["categoria"] = despesa_atualizada.categoria
+
+            return despesa
+
+    raise HTTPException(
+        status_code=404,
+        detail="Despesa não encontrada"
+    )
